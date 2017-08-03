@@ -176,27 +176,37 @@
         value: function() {
           return {
             monthNames: [
-              'January', 'February', 'March', 'April', 'May',
-              'June', 'July', 'August', 'September', 'October', 'November', 'December'
+              'Januar', 'Februar', 'März', 'April', 'Mai',
+              'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
             ],
-            weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-            weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-            firstDayOfWeek: 0,
-            week: 'Week',
-            calendar: 'Calendar',
-            clear: 'Clear',
-            today: 'Today',
-            cancel: 'Cancel',
+            weekdays: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+            weekdaysShort: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+            firstDayOfWeek: 1,
+            week: 'Woche',
+            calendar: 'Kalendar',
+            clear: 'Leeren',
+            today: 'Heute',
+            cancel: 'Abbrechen',
             formatDate: function(d) {
               var year = d.getFullYear();
               var yearString = year.toString();
               if (yearString.length < 3 && year >= 0) {
                 yearString = (year < 10 ? '000' : '00') + year;
               }
-              return (d.getMonth() + 1) + '/' + d.getDate() + '/' + yearString;
+              var mm = d.getMonth() + 1;
+              var mmString = mm.toString();
+              if (mm <= 9) {
+                mmString = (mm <= 9 ? '0' : '') + mm;
+              }
+              var dd = d.getDate();
+              var ddString = dd.toString();
+              if (dd <= 9) {
+                ddString = (dd <= 9 ? '0' : '') + dd;
+              }
+              return ddString + '.' + mmString + '.' + yearString;
             },
             parseDate: function(text) {
-              var parts = text.split('/');
+              var parts = text.split('.');
               var today = new Date();
               var date, month = today.getMonth(), year = today.getFullYear();
 
@@ -205,11 +215,11 @@
                 if (parts[2].length < 3 && year >= 0) {
                   year += year < 50 ? 2000 : 1900;
                 }
-                month = parseInt(parts[0]) - 1;
-                date = parseInt(parts[1]);
+                month = parseInt(parts[1]) - 1;
+                date = parseInt(parts[0]);
               } else if (parts.length === 2) {
-                month = parseInt(parts[0]) - 1;
-                date = parseInt(parts[1]);
+                month = parseInt(parts[1]) - 1;
+                date = parseInt(parts[0]);
               } else if (parts.length === 1) {
                 date = parseInt(parts[0]);
               }
@@ -262,7 +272,8 @@
        */
       _minDate: {
         type: Date,
-        value: null
+        // null does not work here because minimizer passes undefined to overlay (#351)
+        value: ''
       },
 
       /**
@@ -270,7 +281,7 @@
        */
       _maxDate: {
         type: Date,
-        value: null
+        value: ''
       },
 
       _noInput: {
@@ -394,7 +405,7 @@
 
     _handleDateChange: function(property, value, oldValue) {
       if (!value) {
-        this[property] = null;
+        this[property] = '';
         return;
       }
 
@@ -403,10 +414,7 @@
         this.value = oldValue;
         return;
       }
-      if (!(this[property] instanceof Date) ||
-        date.getFullYear() !== this[property].getFullYear() ||
-        date.getMonth() !== this[property].getMonth() ||
-        date.getDate() !== this[property].getDate()) {
+      if (!vaadin.elements.datepicker.DatePickerHelper._dateEquals(this[property], date)) {
         this[property] = date;
       }
     },
