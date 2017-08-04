@@ -421,6 +421,7 @@
 
     _valueChanged: function(value, oldValue) {
       this._handleDateChange('_selectedDate', value, oldValue);
+      this.fire('value-fire', value, oldValue)
     },
 
     _minChanged: function(value, oldValue) {
